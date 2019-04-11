@@ -84,9 +84,9 @@ func doRequest(appid, secret, word string) (transRes, error) {
 	}
 
 	if wordsContainChinese(word) {
-		query["to"] = "zh"
-	} else {
 		query["to"] = "en"
+	} else {
+		query["to"] = "zh"
 	}
 
 	urlStr, err := parseQuery(query)
@@ -116,5 +116,5 @@ func doRequest(appid, secret, word string) (transRes, error) {
 }
 
 func wordsContainChinese(input string) bool {
-	return utf8.RuneCountInString(input) == len(input)
+	return utf8.RuneCountInString(input) != len(input)
 }
