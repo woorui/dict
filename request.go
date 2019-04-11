@@ -71,6 +71,9 @@ func generateHashSign(appid, q, salt, secret string) string {
 
 func doRequest(appid, secret, word string) (transRes, error) {
 	var raw transRes
+	if word == "" {
+		return raw, nil
+	}
 	client := &http.Client{}
 	salt := strconv.Itoa(rand.Int() * 1000)
 	sign := generateHashSign(appid, word, salt, secret)

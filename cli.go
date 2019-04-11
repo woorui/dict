@@ -29,6 +29,9 @@ func askInformation(reader *bufio.Reader) *Information {
 
 func formatAndPrintRes(tr []TransResult) {
 	var s string
+	if len(tr) == 0 {
+		return
+	}
 	for _, v := range tr {
 		s += fmt.Sprintf("|> %s: %s", v.Src, v.Dst)
 	}
