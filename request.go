@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -44,18 +45,6 @@ type TransResult struct {
 	Dst string `json:"dst"`
 }
 
-func parseQuery(data map[string]string) (string, error) {
-	u, err := url.Parse(baseurl)
-	q := u.Query()
-	for k, v := range data {
-		q.Set(k, v)
-	}
-	u.Path = path
-	u.RawQuery = q.Encode()
-	urlStr := u.String()
-	return urlStr, err
-}
-
 func generateHashSign(appid, q, salt, secret string) string {
 	var buffer bytes.Buffer
 	for _, v := range [4]string{appid, q, salt, secret} {
@@ -78,6 +67,30 @@ func doRequest(appid, secret, word string) (transRes, error) {
 	salt := strconv.Itoa(rand.Int() * 1000)
 	sign := generateHashSign(appid, word, salt, secret)
 
+	url, err := genRequestURL(baseurl, path, word, appid, salt, sign)
+	if err != nil {
+		return raw, nil
+	}
+
+	r, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return raw, err
+	}
+
+	resp, err := client.Do(r)
+	if err != nil {
+		return raw, err
+	}
+
+	return parseResponse(resp.Body)
+}
+
+func wordsContainChinese(input string) bool {
+	return utf8.RuneCountInString(input) != len(input)
+}
+
+// genRequestURL generator URL to request api
+func genRequestURL(baseurl string, path string, word, appid, salt, sign string) (string, error) {
 	query := map[string]string{
 		"q":     word,
 		"appid": appid,
@@ -92,19 +105,25 @@ func doRequest(appid, secret, word string) (transRes, error) {
 		query["to"] = "zh"
 	}
 
-	urlStr, err := parseQuery(query)
+	u, err := url.Parse(baseurl)
 	if err != nil {
-		return raw, err
+		return "", err
 	}
-	r, err := http.NewRequest("GET", urlStr, nil)
-	if err != nil {
-		return raw, err
+	q := u.Query()
+	for k, v := range query {
+		q.Set(k, v)
 	}
-	resp, err := client.Do(r)
-	if err != nil {
-		return raw, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
+	u.Path = path
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
+}
+
+// parseResponse parse the response of translator
+func parseResponse(rc io.ReadCloser) (transRes, error) {
+	var raw transRes
+
+	body, err := ioutil.ReadAll(rc)
 	if err != nil {
 		return raw, err
 	}
@@ -112,12 +131,10 @@ func doRequest(appid, secret, word string) (transRes, error) {
 	if err := json.Unmarshal(body, &raw); err != nil {
 		return raw, err
 	}
+
 	if raw.ErrorCode != "" {
 		return raw, errors.New(errCodeMessage[raw.ErrorCode])
 	}
-	return raw, nil
-}
 
-func wordsContainChinese(input string) bool {
-	return utf8.RuneCountInString(input) != len(input)
+	return raw, nil
 }
