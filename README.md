@@ -1,6 +1,8 @@
-## 一个简单但是功能完备的命令行词典
+## a simple but feature-complete command-line dictionary
 
-### 1. 安装 golang
+English | [简体中文](./README-zh_CN.md)
+
+### 1. install golang
 
 + debain
 ```
@@ -12,29 +14,29 @@ $ sudo apt-get install golang-go
 $ sudo brew update && brew upgrade && brew install go
 ```
 
-### 2. 安装 simple-dict
+### 2. install the simple-dict
 
 ```
 $ go get -u github.com/qq1009479218/simple-dict
 ```
 
-### 3. 申请百度翻译开放api
+### 3. apply appid and secret from baidu open api
 
 > http://api.fanyi.baidu.com/api/trans/product/index
 
-### 4. 运行 ssimple-dict 并且填写 appid 和 secret
+### 4. run simple-dict and save your appid and secret
 
 ```
 $ simple-dict
-You need baidu secret and appid, apply link: http://api.fanyi.baidu.com/api/trans/product/index // 回车
+You need baidu secret and appid, apply link: http://api.fanyi.baidu.com/api/trans/product/index // Enter
 
 Input your baidu appid
-`YOUR_BAIDU_APPID` // 回车
+`YOUR_BAIDU_APPID` // Enter
 Input your baidu secret
-`YOUR_BAIDU_SECRET` // 回车
+`YOUR_BAIDU_SECRET` // Enter
 ```
 
-### 5. 运行效果
+### 5. show running results
 ```
 Input words to translate
 word
