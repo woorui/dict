@@ -19,7 +19,7 @@ $ sudo brew update && brew upgrade && brew install go
 > 添加下面两行到 ~/.bash_profile 文件:
 
 ``` bash
-export GOPATH=/home/wurui/go
+export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
 
@@ -34,7 +34,7 @@ source ~/.bash_profile
 > 添加下面两行到 ~/.zshrc 文件:
 
 ``` bash
-export GOPATH=/home/wurui/go
+export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
 
