@@ -49,7 +49,7 @@ source ~/.zshrc
 ### 3. Install the simple-dict
 
 ```
-$ go get -u github.com/qq1009479218/simple-dict
+$ go get -u github.com/woorui/simple-dict
 ```
 
 ### 4. Apply appid and secret from baidu open api

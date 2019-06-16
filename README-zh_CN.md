@@ -47,7 +47,7 @@ source ~/.zshrc
 ### 3. 安装 simple-dict
 
 ``` bash
-$ go get -u github.com/qq1009479218/simple-dict
+$ go get -u github.com/woorui/simple-dict
 ```
 
 ### 4. 申请百度翻译开放api
