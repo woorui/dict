@@ -12,7 +12,7 @@ import (
 
 var (
 	historyFn = filepath.Join(os.TempDir(), ".liner_example_history")
-	names     = []string{"john", "james", "mary", "nancy"}
+	names     = []string{"hello", "world"}
 )
 
 func main() {
