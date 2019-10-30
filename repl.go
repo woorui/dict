@@ -46,7 +46,7 @@ func formatPes(tr []TransResult) string {
 		return ""
 	}
 	for _, v := range tr {
-		s += fmt.Sprintf("|> %s: %s", v.Src, v.Dst)
+		s += fmt.Sprintf(" %s: %s", v.Src, v.Dst)
 	}
 	return s
 }
