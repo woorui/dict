@@ -1,4 +1,4 @@
-module github.com/woorui/simple-dict
+module github.com/woorui/dict
 
 go 1.12
 
