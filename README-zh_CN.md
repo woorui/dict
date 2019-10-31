@@ -44,20 +44,20 @@ export PATH=$PATH:$GOPATH/bin
 source ~/.zshrc
 ```
 
-### 3. 安装 simple-dict
+### 3. 安装 dict
 
 ``` bash
-$ go get -u github.com/woorui/simple-dict
+$ go get -u github.com/woorui/dict
 ```
 
 ### 4. 申请百度翻译开放api
 
 > http://api.fanyi.baidu.com/api/trans/product/index
 
-### 5. 运行 simple-dict 并且填写 appid 和 secret
+### 5. 运行 dict 并且填写 appid 和 secret
 
 ``` bash
-$ simple-dict
+$ dict
 You need baidu secret and appid, apply link: http://api.fanyi.baidu.com/api/trans/product/index // 回车
 
 Input your baidu appid
@@ -68,9 +68,10 @@ Input your baidu secret
 
 ### 6. 运行效果
 ``` bash
-Input words to translate
 word
-|> word: 单词
-multiple
-|> multiple: 倍数
+> word
+ word: 单词
+> 单词
+ 单词: Word
+> 
 ```

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-const saveInformationFileName = ".simple_dict"
+const saveInformationFileName = ".dict"
 
 // homedir is user's home directory, For example It is /home/$USER in linux environment
 var homeDir string
@@ -42,7 +42,7 @@ func readFromFile(filePath string) ([]byte, error) {
 	return b, nil
 }
 
-// getInformation get information that cantain appid and secret from ~/.simple-dict
+// getInformation get information that cantain appid and secret from ~/.dict
 func getInformation() (*Information, error) {
 	var info Information
 	b, err := readFromFile(filepath.Join(homeDir, saveInformationFileName))
@@ -88,7 +88,7 @@ func writeToFile(filePath string, content []byte) error {
 	return nil
 }
 
-// saveInformation save information that cantain appid and secret to ~/.simple-dict
+// saveInformation save information that cantain appid and secret to ~/.dict
 func saveInformation(info *Information) error {
 	fp := filepath.Join(homeDir, saveInformationFileName)
 
