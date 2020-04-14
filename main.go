@@ -4,15 +4,8 @@ import (
 	"bufio"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/peterh/liner"
-)
-
-var (
-	historyFn = filepath.Join(os.TempDir(), ".liner_example_history")
-	names     = []string{"hello", "world"}
 )
 
 func main() {
@@ -20,20 +13,6 @@ func main() {
 	defer line.Close()
 
 	line.SetCtrlCAborts(true)
-
-	line.SetCompleter(func(line string) (c []string) {
-		for _, n := range names {
-			if strings.HasPrefix(n, strings.ToLower(line)) {
-				c = append(c, n)
-			}
-		}
-		return
-	})
-
-	if f, err := os.Open(historyFn); err == nil {
-		line.ReadHistory(f)
-		f.Close()
-	}
 
 	reader := bufio.NewReader(os.Stdin)
 	information, err := getInformation()
