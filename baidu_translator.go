@@ -51,8 +51,8 @@ func (translator *baiduTranslator) genRequestURL(text string) (string, error) {
 	return u.String(), nil
 }
 
-func (translator *baiduTranslator) doRequest(text string) (translation, error) {
-	var t translation
+func (translator *baiduTranslator) doRequest(text string) (BaiduTranslateResult, error) {
+	var t BaiduTranslateResult
 	client := &http.Client{}
 	url, err := translator.genRequestURL(text)
 	if err != nil {
@@ -67,11 +67,11 @@ func (translator *baiduTranslator) doRequest(text string) (translation, error) {
 		return t, err
 	}
 
-	return t, nil
+	return unmarshalBaiduResBody(t, resp.Body)
 }
 
-// translation is response body from remote api
-type translation struct {
+// BaiduTranslateResult is response body from remote api
+type BaiduTranslateResult struct {
 	ErrorCode   string        `json:"error_code"`
 	ErrorMsg    string        `json:"error_msg"`
 	From        string        `json:"from"`
@@ -79,7 +79,7 @@ type translation struct {
 	TransResult []TransResult `json:"trans_result"`
 }
 
-// TransResult is translation TransResult field
+// TransResult is type of BaiduTranslateResult.TransResult
 type TransResult struct {
 	Src string `json:"src"`
 	Dst string `json:"dst"`
@@ -98,83 +98,20 @@ func generateHashSign(appid, q, salt, secret string) string {
 	return sign
 }
 
-func doRequest(appid, secret, word string) (transRes, error) {
-	var raw transRes
-	if word == "" {
-		return raw, nil
-	}
-	client := &http.Client{}
-	salt := strconv.Itoa(rand.Int() * 1000)
-	sign := generateHashSign(appid, word, salt, secret)
-
-	url, err := genRequestURL(baseurl, path, word, appid, salt, sign)
-	if err != nil {
-		return raw, nil
-	}
-
-	r, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return raw, err
-	}
-
-	resp, err := client.Do(r)
-	if err != nil {
-		return raw, err
-	}
-
-	return parseResponse(resp.Body)
-}
-
 func wordsContainChinese(text string) bool {
 	return utf8.RuneCountInString(text) != len(text)
 }
 
-// genRequestURL generator URL to request api
-func genRequestURL(baseurl string, path string, word, appid, salt, sign string) (string, error) {
-	query := map[string]string{
-		"q":     word,
-		"appid": appid,
-		"salt":  salt,
-		"sign":  sign,
-		"from":  "auto",
-	}
-
-	if wordsContainChinese(word) {
-		query["to"] = "en"
-	} else {
-		query["to"] = "zh"
-	}
-
-	u, err := url.Parse(baseurl)
-	if err != nil {
-		return "", err
-	}
-	q := u.Query()
-	for k, v := range query {
-		q.Set(k, v)
-	}
-	u.Path = path
-	u.RawQuery = q.Encode()
-
-	return u.String(), nil
-}
-
-// parseResponse parse the response of translator
-func parseResponse(rc io.ReadCloser) (translation, error) {
-	var raw translation
-
+func unmarshalBaiduResBody(t BaiduTranslateResult, rc io.ReadCloser) (BaiduTranslateResult, error) {
 	body, err := ioutil.ReadAll(rc)
 	if err != nil {
-		return raw, err
+		return t, err
 	}
-
-	if err := json.Unmarshal(body, &raw); err != nil {
-		return raw, err
+	if err := json.Unmarshal(body, &t); err != nil {
+		return t, err
 	}
-
-	if raw.ErrorCode != "" {
-		return raw, errors.New(errCodeMessage[raw.ErrorCode])
+	if t.ErrorCode != "" {
+		return t, errors.New(errCodeMessage[t.ErrorCode])
 	}
-
-	return raw, nil
+	return t, nil
 }
