@@ -2,36 +2,41 @@ package main
 
 import (
 	"crypto/sha256"
+	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 // YoudaoTranslateResult is response of youdao-api
 type YoudaoTranslateResult struct {
-	ErrorCode   string                     `json:"errorCode"`
-	Translation []string                   `json:"translation"`
-	Query       string                     `json:"query"`
-	Web         []YoudaoTeanslateResultWeb `json:"web"`
+	ErrorCode   string   `json:"errorCode"`
+	Translation []string `json:"translation"`
+	Query       string   `json:"query"`
+	Basic       struct {
+		Phonetic string   `json:"phonetic"`
+		Explains []string `json:"explains"`
+	} `json:"basic"`
+	Web         []YoudaoTranslateResultWeb `json:"web"`
 	Webdict     string                     `json:"webdict"`
 	TransResult []TransResult              `json:"trans_result"`
 }
 
-// YoudaoTeanslateResultWeb is sub-struct of YoudaoTranslateResult
-type YoudaoTeanslateResultWeb struct {
-	Phonetic string   `json:"phonetic"`
-	Explains []string `json:"explains"`
+// YoudaoTranslateResultWeb is sub-struct of YoudaoTranslateResult
+type YoudaoTranslateResultWeb struct {
+	Key   string   `json:"key"`
+	Value []string `json:"value"`
 }
 
-// baseurl	https://openapi.youdao.com/api
 func youydaoTranslator(text string) {
 
 }
 
 // timestamp := strconv.Itoa(time.Now().Second())
 // Passing the timestamp make function testable
-func genQuery(text string, timestamp string) {
+func genRequestURLs(text string, timestamp string) (string, error) {
 	salt := uuid.New().String()
 	query := map[string]string{
 		"q":        text,
@@ -51,17 +56,41 @@ func genQuery(text string, timestamp string) {
 	hash := sha256.Sum256([]byte(input))
 	query["sign"] = string(hash[:])
 
-	u, err := url.Parse(baseurl)
+	u, err := url.Parse(youdaoURL)
 	if err != nil {
-		return
+		return "", err
 	}
 	q := u.Query()
 	for k, v := range query {
 		q.Set(k, v)
 	}
-	u.Path = path
 	u.RawQuery = q.Encode()
-	return
+	return u.String(), nil
+}
+
+func doRequests(text string) (transRes, error) {
+	var raw transRes
+	if text == "" {
+		return raw, nil
+	}
+	client := &http.Client{}
+
+	url, err := genRequestURLs(text, strconv.Itoa(time.Now().Second()))
+	if err != nil {
+		return raw, nil
+	}
+
+	r, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return raw, err
+	}
+
+	resp, err := client.Do(r)
+	if err != nil {
+		return raw, err
+	}
+
+	return parseResponse(resp.Body)
 }
 
 func genInput(p string) string {
@@ -70,9 +99,4 @@ func genInput(p string) string {
 		return string(b[:10]) + strconv.Itoa(len(b)) + string(b[len(b)-10:])
 	}
 	return string(b)
-}
-
-func genSign(str string) string {
-	hash := sha256.Sum256([]byte(str))
-	return string(hash[:])
 }
