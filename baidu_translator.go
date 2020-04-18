@@ -16,6 +16,7 @@ import (
 )
 
 type baiduTranslator struct {
+	client http.Client
 	url    string
 	appID  string
 	secret string
