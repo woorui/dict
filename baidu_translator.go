@@ -39,13 +39,11 @@ func (translator *baiduTranslator) genRequestURL(text string, salt string) (stri
 		"sign":  sign,
 		"from":  "auto",
 	}
-
 	if textContainChinese(text) {
 		query["to"] = "en"
 	} else {
 		query["to"] = "zh"
 	}
-
 	u, err := url.Parse(translator.baseurl)
 	if err != nil {
 		return "", err
