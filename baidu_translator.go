@@ -19,8 +19,8 @@ type baiduTranslator struct {
 	secret  string
 }
 
-func newBaiduTranslator(client *http.Client, baseurl, appID, secret string) baiduTranslator {
-	return baiduTranslator{
+func newBaiduTranslator(client *http.Client, baseurl, appID, secret string) *baiduTranslator {
+	return &baiduTranslator{
 		name:    "百度",
 		client:  client,
 		baseurl: baseurl,
@@ -29,7 +29,24 @@ func newBaiduTranslator(client *http.Client, baseurl, appID, secret string) baid
 	}
 }
 
-// salt := strconv.Itoa(rand.Int() * 1000)
+func (translator *baiduTranslator) GetName() string {
+	return translator.name
+}
+
+// Translate implement Translator interface
+func (translator *baiduTranslator) Translate(text string) ([]Translation, error) {
+	salt := strconv.Itoa(rand.Int() * 1000)
+	url, err := translator.genRequestURL(text, salt)
+	if err != nil {
+		return nil, nil
+	}
+	btr, err := translator.doRequest(url, text)
+	if err != nil {
+		return nil, nil
+	}
+	return baiduTransformer(btr), nil
+}
+
 func (translator *baiduTranslator) genRequestURL(text string, salt string) (string, error) {
 	sign := generateHashSign(translator.appID, text, salt, translator.secret)
 	query := map[string]string{
@@ -56,14 +73,9 @@ func (translator *baiduTranslator) genRequestURL(text string, salt string) (stri
 	return u.String(), nil
 }
 
-func (translator *baiduTranslator) doRequest(text string) (BaiduTranslateResult, error) {
+func (translator *baiduTranslator) doRequest(url string, text string) (BaiduTranslateResult, error) {
 	t := BaiduTranslateResult{}
 	client := translator.client
-	salt := strconv.Itoa(rand.Int() * 1000)
-	url, err := translator.genRequestURL(text, salt)
-	if err != nil {
-		return t, nil
-	}
 	body, err := HTTPGetRequest(client, url)
 	if err != nil {
 		return t, nil
@@ -91,4 +103,16 @@ func unmarshalBaiduResBody(t BaiduTranslateResult, body []byte) (BaiduTranslateR
 		return t, baiduErrCodeMessage[t.ErrorCode]
 	}
 	return t, nil
+}
+
+func baiduTransformer(btr BaiduTranslateResult) []Translation {
+	var arr []Translation
+	for _, v := range btr.TransResult {
+		t := Translation{
+			Src: v.Src,
+			Dst: v.Dst,
+		}
+		arr = append(arr, t)
+	}
+	return arr
 }
