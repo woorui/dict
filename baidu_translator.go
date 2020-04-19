@@ -80,7 +80,7 @@ func (translator *baiduTranslator) doRequest(url string, text string) (BaiduTran
 	if err != nil {
 		return t, nil
 	}
-	return unmarshalBaiduResBody(t, body)
+	return t, unmarshalBaiduResBody(&t, body)
 }
 
 func generateHashSign(appid, q, salt, secret string) string {
@@ -95,14 +95,14 @@ func generateHashSign(appid, q, salt, secret string) string {
 	return sign
 }
 
-func unmarshalBaiduResBody(t BaiduTranslateResult, body []byte) (BaiduTranslateResult, error) {
+func unmarshalBaiduResBody(t *BaiduTranslateResult, body []byte) error {
 	if err := json.Unmarshal(body, &t); err != nil {
-		return t, err
+		return err
 	}
 	if t.ErrorCode != "" {
-		return t, baiduErrCodeMessage[t.ErrorCode]
+		return baiduErrCodeMessage[t.ErrorCode]
 	}
-	return t, nil
+	return nil
 }
 
 func baiduTransformer(btr BaiduTranslateResult) []Translation {
