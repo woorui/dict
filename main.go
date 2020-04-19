@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/peterh/liner"
 )
 
@@ -9,8 +11,9 @@ func main() {
 	defer line.Close()
 	line.SetCtrlCAborts(true)
 	for {
-		if input, err := line.Prompt("> "); err == nil {
+		if text, err := line.Prompt("> "); err == nil {
 			// TODO do request
+			fmt.Println(text)
 		}
 		break
 	}

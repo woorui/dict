@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,33 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
-// YoudaoTranslateResult is response of youdao-api
-type YoudaoTranslateResult struct {
-	ErrorCode   string   `json:"errorCode"`
-	Translation []string `json:"translation"`
-	Query       string   `json:"query"`
-	Basic       struct {
-		Phonetic string   `json:"phonetic"`
-		Explains []string `json:"explains"`
-	} `json:"basic"`
-	Web         []YoudaoTranslateResultWeb `json:"web"`
-	Webdict     string                     `json:"webdict"`
-	TransResult []TransResult              `json:"trans_result"`
+type youdaoTranslator struct {
+	name    string
+	client  *http.Client
+	baseurl string
+	appID   string
+	secret  string
 }
 
-// YoudaoTranslateResultWeb is sub-struct of YoudaoTranslateResult
-type YoudaoTranslateResultWeb struct {
-	Key   string   `json:"key"`
-	Value []string `json:"value"`
-}
-
-func youydaoTranslator(text string) {
-
-}
-
+// genRequestURL generate url request by client
 // timestamp := strconv.Itoa(time.Now().Second())
 // Passing the timestamp make function testable
-func genRequestURLs(text string, timestamp string) (string, error) {
+func (translator *youdaoTranslator) genRequestURL(text string, timestamp string) (string, error) {
 	salt := uuid.New().String()
 	query := map[string]string{
 		"q":        text,
@@ -45,7 +31,7 @@ func genRequestURLs(text string, timestamp string) (string, error) {
 		"signType": "v3",
 		"curtime":  timestamp,
 	}
-	if wordsContainChinese(text) {
+	if textContainChinese(text) {
 		query["from"] = "zh-CHS"
 		query["to"] = "en"
 	} else {
@@ -68,29 +54,32 @@ func genRequestURLs(text string, timestamp string) (string, error) {
 	return u.String(), nil
 }
 
-func doRequests(text string) (transRes, error) {
-	var raw transRes
+func (translator *youdaoTranslator) doRequest(text string) (YoudaoTranslateResult, error) {
+	var t YoudaoTranslateResult
 	if text == "" {
-		return raw, nil
+		return t, nil
 	}
-	client := &http.Client{}
-
-	url, err := genRequestURLs(text, strconv.Itoa(time.Now().Second()))
+	client := translator.client
+	timestamp := strconv.Itoa(time.Now().Second())
+	url, err := translator.genRequestURL(text, timestamp)
 	if err != nil {
-		return raw, nil
+		return t, nil
 	}
-
-	r, err := http.NewRequest("GET", url, nil)
+	body, err := HTTPGetRequest(client, url)
 	if err != nil {
-		return raw, err
+		return t, nil
 	}
+	return unmarshalYoudaoResBody(t, body)
+}
 
-	resp, err := client.Do(r)
-	if err != nil {
-		return raw, err
+func unmarshalYoudaoResBody(t YoudaoTranslateResult, body []byte) (YoudaoTranslateResult, error) {
+	if err := json.Unmarshal(body, &t); err != nil {
+		return t, err
 	}
-
-	return parseResponse(resp.Body)
+	if t.ErrorCode != "" {
+		return t, baiduErrCodeMessage[t.ErrorCode]
+	}
+	return t, nil
 }
 
 func genInput(p string) string {
