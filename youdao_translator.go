@@ -21,9 +21,12 @@ type youdaoTranslator struct {
 	appSecret string
 }
 
-func newYoudaoTranslator(client *http.Client, baseurl, appKey, appSecret string) *youdaoTranslator {
+func newYoudaoTranslator(client *http.Client, baseurl, str string) *youdaoTranslator {
+	arr := strings.Split(str, "-")
+	appKey := arr[0]
+	appSecret := arr[1]
 	return &youdaoTranslator{
-		name:      "有道",
+		name:      youdaoName,
 		client:    client,
 		baseurl:   baseurl,
 		appKey:    appKey,
@@ -117,7 +120,7 @@ func genInput(p string) string {
 func youdaoTransformer(t YoudaoTranslateResult) []Translation {
 	var arr []Translation
 	item := Translation{
-		DataSource: "有道",
+		DataSource: youdaoName,
 		Src:        t.Query,
 		Dst:        strings.Join(t.Translation, ", "),
 		Phonetic:   t.Basic.Phonetic,
@@ -126,7 +129,7 @@ func youdaoTransformer(t YoudaoTranslateResult) []Translation {
 	arr = append(arr, item)
 	for _, v := range t.Web {
 		item := Translation{
-			DataSource: "有道web",
+			DataSource: strings.Join([]string{youdaoName, "web"}, ""),
 			Src:        v.Key,
 			Dst:        strings.Join(t.Translation, ", "),
 		}

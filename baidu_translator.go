@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type baiduTranslator struct {
@@ -19,9 +20,12 @@ type baiduTranslator struct {
 	secret  string
 }
 
-func newBaiduTranslator(client *http.Client, baseurl, appID, secret string) *baiduTranslator {
+func newBaiduTranslator(client *http.Client, baseurl, str string) *baiduTranslator {
+	arr := strings.Split(str, "-")
+	appID := arr[0]
+	secret := arr[1]
 	return &baiduTranslator{
-		name:    "百度",
+		name:    baiduName,
 		client:  client,
 		baseurl: baseurl,
 		appID:   appID,
@@ -109,7 +113,7 @@ func baiduTransformer(btr BaiduTranslateResult) []Translation {
 	var arr []Translation
 	for _, v := range btr.TransResult {
 		t := Translation{
-			DataSource: "百度",
+			DataSource: baiduName,
 			Src:        v.Src,
 			Dst:        v.Dst,
 		}

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -41,7 +42,7 @@ func Test_genRequestURL(t *testing.T) {
 		{"://test.com/test/path", "mockAppid", "mockSign", "name", "321", "", errors.New("parse ://test.com/test/path: missing protocol scheme")},
 	}
 	for _, table := range tables {
-		translator := newBaiduTranslator(client, table.baseurl, table.appID, table.secret)
+		translator := newBaiduTranslator(client, table.baseurl, strings.Join([]string{table.appID, table.secret}, "-"))
 		returns, err := translator.genRequestURL(table.text, table.salt)
 		if err != nil {
 			if err.Error() != table.err.Error() {

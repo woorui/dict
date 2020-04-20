@@ -33,3 +33,14 @@ type YoudaoTranslateResultWeb struct {
 	Key   string   `json:"key"`
 	Value []string `json:"value"`
 }
+
+// Config storage appid and secret
+// Key specify the data source
+// Value combines appid and secret as a string in some way, every translator need diy the way.
+type Config struct {
+	Key   string `yaml:"key"`
+	Value string `yaml:"value"`
+}
+
+// Row for uitable
+type Row []string
