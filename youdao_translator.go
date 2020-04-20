@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -96,7 +97,6 @@ func (translator *youdaoTranslator) doRequest(url string, text string) (YoudaoTr
 }
 
 func unmarshalYoudaoResBody(t *YoudaoTranslateResult, body []byte) error {
-	fmt.Println(string(body))
 	if err := json.Unmarshal(body, &t); err != nil {
 		return err
 	}
@@ -116,5 +116,21 @@ func genInput(p string) string {
 
 func youdaoTransformer(t YoudaoTranslateResult) []Translation {
 	var arr []Translation
+	item := Translation{
+		DataSource: "有道",
+		Src:        t.Query,
+		Dst:        strings.Join(t.Translation, ", "),
+		Phonetic:   t.Basic.Phonetic,
+		Explain:    strings.Join(t.Basic.Explains, ", "),
+	}
+	arr = append(arr, item)
+	for _, v := range t.Web {
+		item := Translation{
+			DataSource: "有道web",
+			Src:        v.Key,
+			Dst:        strings.Join(t.Translation, ", "),
+		}
+		arr = append(arr, item)
+	}
 	return arr
 }

@@ -109,8 +109,9 @@ func baiduTransformer(btr BaiduTranslateResult) []Translation {
 	var arr []Translation
 	for _, v := range btr.TransResult {
 		t := Translation{
-			Src: v.Src,
-			Dst: v.Dst,
+			DataSource: "百度",
+			Src:        v.Src,
+			Dst:        v.Dst,
 		}
 		arr = append(arr, t)
 	}

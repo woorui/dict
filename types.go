@@ -1,20 +1,5 @@
 package main
 
-// Translator has Translate method
-type Translator interface {
-	GetName() string
-	Translate(text string) ([]Translation, error)
-}
-
-// Translation is the returning of Translator.Translate
-type Translation struct {
-	DataSource string
-	Src        string
-	Dst        string
-	Phonetic   string
-	Explain    string
-}
-
 // --- baidu api json struct below ---
 
 // BaiduTranslateResult is response body from remote api
@@ -40,8 +25,7 @@ type YoudaoTranslateResult struct {
 		Phonetic string   `json:"phonetic"`
 		Explains []string `json:"explains"`
 	} `json:"basic"`
-	Web     []YoudaoTranslateResultWeb `json:"web"`
-	Webdict string                     `json:"webdict"`
+	Web []YoudaoTranslateResultWeb `json:"web"`
 }
 
 // YoudaoTranslateResultWeb is sub-struct of YoudaoTranslateResult
