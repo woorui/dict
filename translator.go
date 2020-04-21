@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"sync"
 
 	"github.com/gosuri/uitable"
 )
@@ -38,10 +40,57 @@ func TranslatorFactory(configs []Config, client *http.Client) *[]Translator {
 }
 
 // Translate translate the text with mutiple engine
-func Translate(translators []Translator, text string) []Row {
+func Translate(translators []Translator, text string) *uitable.Table {
 	table := uitable.New()
 	table.AddRow(title...)
-	// TODO dorequest
-	var rows []Row
-	return rows
+	for _, translator := range translators {
+		translation, err := translator.Translate(text)
+		if err != nil {
+			panic(err)
+		}
+		for _, t := range translation {
+			table.AddRow(t.DataSource, t.Src, t.Dst, t.Phonetic, t.Explain)
+		}
+	}
+	return table
+}
+
+func translate(translators []Translator, text string, q chan Translation) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	for _, translator := range translators {
+		go func(translator Translator) {
+			translation, err := translator.Translate(text)
+			if err != nil {
+				err = ctx.Err()
+			}
+			for _, t := range translation {
+				q <- t
+			}
+			cancel()
+		}(translator)
+	}
+}
+
+func translateWaitGroup(translators []Translator, text string) {
+	var wg sync.WaitGroup
+	q := make(chan Translation)
+	for _, translator := range translators {
+		wg.Add(len(translators))
+		go func(translator Translator) {
+			translation, err := translator.Translate(text)
+			if err != nil {
+				panic(err)
+			}
+			for _, t := range translation {
+				q <- t
+			}
+			wg.Done()
+		}(translator)
+	}
+	wg.Wait()
+	close(q)
+
 }
