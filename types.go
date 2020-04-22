@@ -41,6 +41,3 @@ type Config struct {
 	Key   string `yaml:"key"`
 	Value string `yaml:"value"`
 }
-
-// Row for uitable
-type Row []string

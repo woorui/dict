@@ -1,12 +1,17 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"net/http"
 	"sync"
 
 	"github.com/gosuri/uitable"
 )
+
+// Engine has multiple Translator
+type Engine struct {
+	Translators []Translator
+}
 
 // Translator has Translate method
 type Translator interface {
@@ -23,9 +28,10 @@ type Translation struct {
 	Explain    string
 }
 
-// TranslatorFactory product some translator
-// If you want add a new one, change code comments.
-func TranslatorFactory(configs []Config, client *http.Client) *[]Translator {
+// NewEngine construct some translator
+// If you want add a new one, change code comments below.
+func NewEngine(configs []Config) *Engine {
+	client := &http.Client{}
 	var arr []Translator
 	for _, config := range configs {
 		if config.Key == "baidu" {
@@ -34,63 +40,59 @@ func TranslatorFactory(configs []Config, client *http.Client) *[]Translator {
 		if config.Key == "youdao" {
 			arr = append(arr, newYoudaoTranslator(client, baidubURL, config.Value))
 		}
-		// Add new translator here.
+		// ADD HERE.
 	}
-	return &arr
+	return &Engine{Translators: arr}
 }
 
 // Translate translate the text with mutiple engine
-func Translate(translators []Translator, text string) *uitable.Table {
-	table := uitable.New()
-	table.AddRow(title...)
-	for _, translator := range translators {
-		translation, err := translator.Translate(text)
-		if err != nil {
-			panic(err)
-		}
-		for _, t := range translation {
-			table.AddRow(t.DataSource, t.Src, t.Dst, t.Phonetic, t.Explain)
+func (engine Engine) Translate(textch chan string) (q chan Translation, done chan struct{}, errch chan error) {
+	var wg sync.WaitGroup
+	for _, translator := range engine.Translators {
+		for text := range textch {
+			wg.Add(1)
+			go func(translator Translator, text string) {
+				translation, err := translator.Translate(text)
+				if err != nil {
+					errch <- err
+				}
+				for _, t := range translation {
+					q <- t
+				}
+				wg.Done()
+			}(translator, text)
 		}
 	}
+	wg.Wait()
+	done <- struct{}{}
+	return q, done, errch
+}
+
+func initTable() *uitable.Table {
+	table := uitable.New()
+	table.AddRow(title...)
 	return table
 }
 
-func translate(translators []Translator, text string, q chan Translation) {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	for _, translator := range translators {
-		go func(translator Translator) {
-			translation, err := translator.Translate(text)
-			if err != nil {
-				err = ctx.Err()
-			}
-			for _, t := range translation {
-				q <- t
-			}
-			cancel()
-		}(translator)
+func subscriber(q chan Translation, done chan struct{}, errch chan error) {
+	table := &uitable.Table{}
+	select {
+	case t := <-q:
+		table.AddRow(t.DataSource, t.Src, t.Dst, t.Phonetic, t.Explain)
+	case <-done:
+		fmt.Println(table)
+		table = initTable()
+	case err := <-errch:
+		fmt.Println(err.Error())
+		break
 	}
 }
 
-func translateWaitGroup(translators []Translator, text string) {
-	var wg sync.WaitGroup
-	q := make(chan Translation)
-	for _, translator := range translators {
-		wg.Add(len(translators))
-		go func(translator Translator) {
-			translation, err := translator.Translate(text)
-			if err != nil {
-				panic(err)
-			}
-			for _, t := range translation {
-				q <- t
-			}
-			wg.Done()
-		}(translator)
-	}
-	wg.Wait()
-	close(q)
-
+// Run run app
+func Run() {
+	configs := []Config{}
+	engine := NewEngine(configs)
+	textch := make(chan string)
+	q, done, errch := engine.Translate(textch)
+	subscriber(q, done, errch)
 }
