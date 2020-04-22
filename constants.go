@@ -8,6 +8,8 @@ const baiduName = "百度"
 const baidubURL = "http://api.fanyi.baidu.com/api/trans/vip/translate"
 const youdaoURL = "https://openapi.youdao.com/api"
 
+const configfile = ".dict_config"
+
 var title = []interface{}{"来源", "原文", "译文", "音标", "详情"}
 
 var baiduErrCodeMessage = map[string]error{

@@ -30,15 +30,15 @@ type Translation struct {
 
 // NewEngine construct some translator
 // If you want add a new one, change code comments below.
-func NewEngine(configs []Config) *Engine {
+func NewEngine(config []Config) *Engine {
 	client := &http.Client{}
 	var arr []Translator
-	for _, config := range configs {
-		if config.Key == "baidu" {
-			arr = append(arr, newBaiduTranslator(client, baidubURL, config.Value))
+	for _, c := range config {
+		if c.Key == "baidu" {
+			arr = append(arr, newBaiduTranslator(client, baidubURL, c.Value))
 		}
-		if config.Key == "youdao" {
-			arr = append(arr, newYoudaoTranslator(client, baidubURL, config.Value))
+		if c.Key == "youdao" {
+			arr = append(arr, newYoudaoTranslator(client, baidubURL, c.Value))
 		}
 		// ADD HERE.
 	}
