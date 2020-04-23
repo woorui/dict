@@ -46,7 +46,7 @@ func NewEngine(config []Config) *Engine {
 }
 
 // Translate translate the text with mutiple engine
-func (engine Engine) Translate(textch chan string) (q chan Translation, done chan struct{}, errch chan error) {
+func (engine Engine) Translate(textch chan string, done chan struct{}) (q chan Translation, errch chan error) {
 	var wg sync.WaitGroup
 	for _, translator := range engine.Translators {
 		for text := range textch {
@@ -65,7 +65,7 @@ func (engine Engine) Translate(textch chan string) (q chan Translation, done cha
 	}
 	wg.Wait()
 	done <- struct{}{}
-	return q, done, errch
+	return q, errch
 }
 
 func initTable() *uitable.Table {
@@ -93,6 +93,7 @@ func Run() {
 	configs := []Config{}
 	engine := NewEngine(configs)
 	textch := make(chan string)
-	q, done, errch := engine.Translate(textch)
+	done := make(chan struct{}, 1)
+	q, errch := engine.Translate(textch, done)
 	subscriber(q, done, errch)
 }
