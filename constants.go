@@ -56,3 +56,5 @@ var youdaoErrCodeMessage = map[string]error{
 	"411": errors.New("访问频率受限,请稍后访问"),
 	"412": errors.New("长请求过于频繁，请稍后访问"),
 }
+
+var errFileIsRequired = errors.New("You need a config file specified by -f flag")

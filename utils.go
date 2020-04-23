@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -44,7 +43,7 @@ func getConfig(p string) ([]Config, error) {
 	if p == "" {
 		if _, err = os.Stat(homep); err != nil {
 			if os.IsNotExist(err) {
-				return config, errors.New("You need a config file specified by -f flag")
+				return config, errFileIsRequired
 			}
 			return config, err
 		}
