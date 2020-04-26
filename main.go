@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 
@@ -8,6 +9,20 @@ import (
 )
 
 func main() {
+	filePath := flag.String("file", "", "Config file path.")
+	flag.Parse()
+
+	configs, err := getConfig(*filePath)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	engine := NewEngine(configs)
+	err = engine.Translate("hello")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	line := liner.NewLiner()
 	defer line.Close()
 	line.SetCtrlCAborts(true)

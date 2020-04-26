@@ -31,6 +31,7 @@ func textContainChinese(text string) bool {
 	return utf8.RuneCountInString(text) != len(text)
 }
 
+// getConfig get config needs by engine from path p
 func getConfig(p string) ([]Config, error) {
 	var err error
 	var b []byte
