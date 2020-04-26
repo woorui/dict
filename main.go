@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/peterh/liner"
 )
@@ -11,10 +12,12 @@ func main() {
 	defer line.Close()
 	line.SetCtrlCAborts(true)
 	for {
-		if text, err := line.Prompt("> "); err == nil {
-			// TODO do request
-			fmt.Println(text)
+		if str, err := line.Prompt("> "); err == nil {
+			fmt.Print(str)
+		} else if err == liner.ErrPromptAborted {
+			break
+		} else {
+			log.Fatalln("Error reading line: ", err)
 		}
-		break
 	}
 }
