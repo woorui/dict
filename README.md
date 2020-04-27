@@ -1,46 +1,48 @@
-## a simple but feature-complete command-line dictionary
+# A simple but feature-complete command-line dictionary
 
 English | [简体中文](./README-zh_CN.md)
 
-### 1. Install golang
+## 1. Install golang
 
-+ debain
+debain
+
 ``` bash
-$ sudo apt-get install golang-go
+sudo apt-get install golang-go
 ```
 
-+ macos
+macos
+
 ``` bash
-$ sudo brew update && brew upgrade && brew install go
+sudo brew update && brew upgrade && brew install go
 ```
 
-### 2. Setting the environment variable
+## 2. Setting the environment variable
 
-#### - Bash
+### Bash
 
-> Edit your ~/.bash_profile to add the following line:
+Edit your ~/.bash_profile to add the following line:
 
 ``` bash
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
 
-> Save and exit your editor. Then, source your ~/.bash_profile.
+Save and exit your editor. Then, source your ~/.bash_profile.
 
 ``` bash
 source ~/.bash_profile
 ```
 
-#### - Zsh
+### Zsh
 
-> Edit your ~/.zshrc file to add the following line:
+Edit your ~/.zshrc file to add the following line:
 
 ``` bash
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
 
-> Save and exit your editor. Then, source your ~/.zshrc.
+Save and exit your editor. Then, source your ~/.zshrc.
 
 ``` bash
 source ~/.zshrc
@@ -48,32 +50,50 @@ source ~/.zshrc
 
 ### 3. Install the dict
 
-```
-$ go get -u github.com/woorui/dict
-```
-
-### 4. Apply appid and secret from baidu open api
-
-> http://api.fanyi.baidu.com/api/trans/product/index
-
-### 5. Running the dict and save your appid and secret
-
-```
-$ dict
-You need baidu secret and appid, apply link: http://api.fanyi.baidu.com/api/trans/product/index // Enter
-
-Input your baidu appid
-`YOUR_BAIDU_APPID` // Enter
-Input your baidu secret
-`YOUR_BAIDU_SECRET` // Enter
+``` bash
+go get -u github.com/woorui/dict
 ```
 
-### 6.Show running results
+### 4. Apply appid and secret from baidu and youdao open api
+
+baidu
+
+> <http://api.fanyi.baidu.com/api/trans/product/index>
+
+youdao
+
+> <https://ai.youdao.com/>
+
+### 5. Write your config
+
+``` yaml
+-
+  key: baidu
+  value: YOUR_BAIDU_APPID-YOUR_BAIDU_SECRET
+-
+  key: youdao
+  value: YOUR_YOUDAO_APPKEY-YOUR_YOUDAO_ADDSECRET
 ```
-word
-> word
- word: 单词
-> 单词
- 单词: Word
-> 
+
+note. key is api source, value is `strings.Join([]string{APPID, SECRET}, "-"})`
+
+### 6. Running the dict and specify the config file
+
+``` bash
+dict -file TYPING_YOUR_CONFIG_FILE_WHEN_FIRST_USING
+```
+
+### 7.Show running results
+
+``` bash
+> hello
+来源    原文    译文    音标    详情
+百度    hello   你好
+有道    hello   你好    həˈləʊ  int. 喂；哈罗，你好，您好, n. 表示问候，
+                                惊奇或唤起注意时的用语, n. (Hello) 人名；（法）埃洛
+> 你好
+来源    原文    译文    音标    详情
+百度    你好    Hello
+有道    你好    hello           hello, hi, how do you do
+
 ```

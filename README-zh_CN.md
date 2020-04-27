@@ -1,20 +1,22 @@
-## 一个简单但是功能完备的命令行词典
+# 简单但功能完备的命令行词典
 
-### 1. 安装 golang
+## 1. 安装 golang
 
-+ debain
-```
-$ sudo apt-get install golang-go
-```
+debain
 
-+ macos
-```
-$ sudo brew update && brew upgrade && brew install go
+``` bash
+sudo apt-get install golang-go
 ```
 
-### 2. 设置$GOPATH的环境变量
+macos
 
-#### - Bash
+``` bash
+sudo brew update && brew upgrade && brew install go
+```
+
+## 2. 设置$GOPATH的环境变量
+
+### Bash
 
 > 添加下面两行到 ~/.bash_profile 文件:
 
@@ -29,7 +31,7 @@ export PATH=$PATH:$GOPATH/bin
 source ~/.bash_profile
 ```
 
-#### - Zsh
+### - Zsh
 
 > 添加下面两行到 ~/.zshrc 文件:
 
@@ -47,31 +49,48 @@ source ~/.zshrc
 ### 3. 安装 dict
 
 ``` bash
-$ go get -u github.com/woorui/dict
+go get -u github.com/woorui/dict
 ```
 
-### 4. 申请百度翻译开放api
+### 4. 申请百度和有道翻译开放api
 
-> http://api.fanyi.baidu.com/api/trans/product/index
+百度
 
-### 5. 运行 dict 并且填写 appid 和 secret
+> <http://api.fanyi.baidu.com/api/trans/product/index>
 
-``` bash
-$ dict
-You need baidu secret and appid, apply link: http://api.fanyi.baidu.com/api/trans/product/index // 回车
+有道
 
-Input your baidu appid
-`YOUR_BAIDU_APPID` // 回车
-Input your baidu secret
-`YOUR_BAIDU_SECRET` // 回车
+> <https://ai.youdao.com/>
+
+### 5. 生成一个配置文件
+
+``` yaml
+-
+  key: baidu
+  value: YOUR_BAIDU_APPID-YOUR_BAIDU_SECRET
+-
+  key: youdao
+  value: YOUR_YOUDAO_APPKEY-YOUR_YOUDAO_ADDSECRET
 ```
 
-### 6. 运行效果
+注意. value 由代码 `strings.Join([]string{APPID, SECRET}, "-"})` 生成
+
+### 6. 运行dict, 并指定config文件
+
 ``` bash
-word
-> word
- word: 单词
-> 单词
- 单词: Word
-> 
+dict -file TYPING_YOUR_CONFIG_FILE_WHEN_FIRST_USING
+```
+
+### 7. 运行效果
+
+``` bash
+> hello
+来源    原文    译文    音标    详情
+百度    hello   你好
+有道    hello   你好    həˈləʊ  int. 喂；哈罗，你好，您好, n. 表示问候，
+                                惊奇或唤起注意时的用语, n. (Hello) 人名；（法）埃洛
+> 你好
+来源    原文    译文    音标    详情
+百度    你好    Hello
+有道    你好    hello           hello, hi, how do you do
 ```
