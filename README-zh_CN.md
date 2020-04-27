@@ -75,6 +75,8 @@ go get -u github.com/woorui/dict
 
 注意. value 由代码 `strings.Join([]string{APPID, SECRET}, "-"})` 生成
 
+如果你只想要百度翻译或者有道翻译，只需要添加你想要的其中之一的key-value
+
 ### 6. 运行dict, 并指定config文件
 
 ``` bash

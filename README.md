@@ -77,6 +77,8 @@ youdao
 
 note. key is api source, value is `strings.Join([]string{APPID, SECRET}, "-"})`
 
+If you want both, add two key-value, If you want one of them, add key-value you want.
+
 ### 6. Running the dict and specify the config file
 
 ``` bash
