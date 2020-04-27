@@ -127,13 +127,13 @@ func youdaoTransformer(t YoudaoTranslateResult) []Translation {
 		Explain:    strings.Join(t.Basic.Explains, ", "),
 	}
 	arr = append(arr, item)
-	for _, v := range t.Web {
-		item := Translation{
-			DataSource: strings.Join([]string{youdaoName, "web"}, ""),
-			Src:        v.Key,
-			Dst:        strings.Join(t.Translation, ", "),
-		}
-		arr = append(arr, item)
-	}
+	// for _, v := range t.Web {
+	// 	item := Translation{
+	// 		DataSource: strings.Join([]string{youdaoName, "web"}, ""),
+	// 		Src:        v.Key,
+	// 		Dst:        strings.Join(t.Translation, ", "),
+	// 	}
+	// 	arr = append(arr, item)
+	// }
 	return arr
 }
