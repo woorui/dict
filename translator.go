@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gosuri/uitable"
 )
@@ -58,7 +57,6 @@ func (engine *Engine) Translate(str string) (*uitable.Table, error) {
 		for _, t := range translations {
 			table.AddRow(t.DataSource, t.Src, t.Dst, t.Phonetic, t.Explain)
 		}
-		time.Sleep(time.Second)
 	}
 	return table, nil
 }

@@ -22,7 +22,7 @@ func Test_generateHashSign(t *testing.T) {
 	for _, table := range tables {
 		res := generateHashSign(table.appid, table.q, table.salt, table.secret)
 		if res != table.sign {
-			t.Errorf("wordsContainChinese(%s,%s,%s,%s) was incorrect, got:%s, want:%s", table.appid, table.q, table.salt, table.secret, res, table.sign)
+			t.Errorf("generateHashSign(%s,%s,%s,%s) was incorrect, got:%s, want:%s", table.appid, table.q, table.salt, table.secret, res, table.sign)
 		}
 	}
 }
