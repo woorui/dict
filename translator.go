@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gosuri/uitable"
@@ -48,6 +49,7 @@ func NewEngine(config []Config) *Engine {
 // str will split by space in some sub string.
 func (engine *Engine) Translate(str string) (*uitable.Table, error) {
 	table := initTable()
+	str = strings.Trim(str, " ")
 	for _, translator := range engine.Translators {
 		translations, err := translator.Translate(str)
 		if err != nil {
