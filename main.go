@@ -21,6 +21,7 @@ func main() {
 	line := liner.NewLiner()
 	defer line.Close()
 	line.SetCtrlCAborts(true)
+
 	for {
 		if str, err := line.Prompt("> "); err == nil {
 			table, err := engine.Translate(str)
@@ -28,6 +29,7 @@ func main() {
 				log.Fatalln(err)
 			}
 			fmt.Println(table)
+			line.AppendHistory(str)
 		} else if err == liner.ErrPromptAborted {
 			break
 		} else {

@@ -1,6 +1,10 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"os"
+	"path/filepath"
+)
 
 const youdaoName = "有道"
 const baiduName = "百度"
@@ -9,6 +13,8 @@ const baidubURL = "http://api.fanyi.baidu.com/api/trans/vip/translate"
 const youdaoURL = "https://openapi.youdao.com/api"
 
 const configfile = ".dict_config"
+
+var historyfile = filepath.Join(os.TempDir(), ".dict_history")
 
 var tableTitle = []interface{}{"来源", "原文", "译文", "音标", "详情"}
 
