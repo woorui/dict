@@ -57,7 +57,7 @@ func getConfig(p string) ([]Config, error) {
 		if err != nil {
 			return config, err
 		}
-		f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		f, err := os.OpenFile(homep, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return config, err
 		}

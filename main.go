@@ -16,19 +16,18 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	engine := NewEngine(configs)
-	err = engine.Translate("hello")
-	if err != nil {
-		log.Fatalln(err)
-	}
 
 	line := liner.NewLiner()
 	defer line.Close()
 	line.SetCtrlCAborts(true)
 	for {
 		if str, err := line.Prompt("> "); err == nil {
-			fmt.Print(str)
+			table, err := engine.Translate(str)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			fmt.Println(table)
 		} else if err == liner.ErrPromptAborted {
 			break
 		} else {

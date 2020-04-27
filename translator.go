@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
+	"time"
+
+	"github.com/gosuri/uitable"
 )
 
 // Engine has multiple Translator
@@ -32,11 +33,11 @@ func NewEngine(config []Config) *Engine {
 	client := &http.Client{}
 	var arr []Translator
 	for _, c := range config {
-		if c.Key == "baidu" {
-			arr = append(arr, newBaiduTranslator(client, baidubURL, c.Value))
-		}
 		if c.Key == "youdao" {
 			arr = append(arr, newYoudaoTranslator(client, baidubURL, c.Value))
+		}
+		if c.Key == "baidu" {
+			arr = append(arr, newBaiduTranslator(client, baidubURL, c.Value))
 		}
 		// ADD HERE.
 	}
@@ -45,31 +46,25 @@ func NewEngine(config []Config) *Engine {
 
 // Translate translate the str with mutiple engine,
 // str will split by space in some sub string.
-func (engine *Engine) Translate(str string) error {
-	texts := strings.Split(str, " ")
-	tch := make(chan Translation)
-	errch := make(chan error, 1)
+func (engine *Engine) Translate(str string) (*uitable.Table, error) {
+	table := initTable()
 	for _, translator := range engine.Translators {
-		for _, text := range texts {
-			go func(text string) {
-				translations, err := translator.Translate(text)
-				if err != nil {
-					errch <- err
-				}
-				for _, t := range translations {
-					tch <- t
-				}
-			}(text)
+		translations, err := translator.Translate(str)
+		if err != nil {
+			return table, err
 		}
+		for _, t := range translations {
+			table.AddRow(t.DataSource, t.Src, t.Dst, t.Phonetic, t.Explain)
+		}
+		time.Sleep(time.Second)
 	}
+	return table, nil
+}
 
-	for {
-		select {
-		case t := <-tch:
-			fmt.Println("--", t)
-		case err := <-errch:
-			return err
-		}
-	}
-	return nil
+func initTable() *uitable.Table {
+	table := uitable.New()
+	table.AddRow(tableTitle...)
+	table.MaxColWidth = 60
+	table.Wrap = true
+	return table
 }

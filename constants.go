@@ -10,7 +10,7 @@ const youdaoURL = "https://openapi.youdao.com/api"
 
 const configfile = ".dict_config"
 
-var title = []interface{}{"来源", "原文", "译文", "音标", "详情"}
+var tableTitle = []interface{}{"来源", "原文", "译文", "音标", "详情"}
 
 var baiduErrCodeMessage = map[string]error{
 	"52001": errors.New("请求超时, 请稍后重试"),
