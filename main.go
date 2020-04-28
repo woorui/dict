@@ -26,7 +26,8 @@ func main() {
 		if str, err := line.Prompt("> "); err == nil {
 			table, err := engine.Translate(str)
 			if err != nil {
-				log.Fatalln(err)
+				fmt.Println(err)
+				break
 			}
 			fmt.Println(table)
 			line.AppendHistory(str)
@@ -34,6 +35,7 @@ func main() {
 			break
 		} else {
 			log.Fatalln("Error reading line: ", err)
+			break
 		}
 	}
 }
