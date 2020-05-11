@@ -11,7 +11,7 @@ sudo apt-get install golang-go
 macos
 
 ``` bash
-sudo brew update && brew upgrade && brew install go
+brew update && brew upgrade && brew install go
 ```
 
 ## 2. 设置$GOPATH的环境变量
