@@ -111,7 +111,7 @@ func unmarshalYoudaoResBody(t *YoudaoTranslateResult, body []byte) error {
 
 func genInput(p string) string {
 	b := []rune(p)
-	if len(b) >= 20 {
+	if len(b) > 20 {
 		return string(b[:10]) + strconv.Itoa(len(b)) + string(b[len(b)-10:])
 	}
 	return string(b)
