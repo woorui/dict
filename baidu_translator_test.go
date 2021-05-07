@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"net/http"
-	"strings"
 	"testing"
 )
 
@@ -27,34 +25,51 @@ func Test_generateHashSign(t *testing.T) {
 	}
 }
 
-func Test_genRequestURL(t *testing.T) {
-	client := &http.Client{}
-	tables := []struct {
+func Test_baiduTranslator_genRequestURL(t *testing.T) {
+	type fields struct {
+		name    string
+		client  *http.Client
 		baseurl string
 		appID   string
 		secret  string
-		text    string
-		salt    string
-		returns string
-		err     error
-	}{
-		{"http://test.com/test/path", "mockAppid", "mockSign", "name", "123", "http://test.com/test/path?appid=mockAppid&from=auto&q=name&salt=123&sign=ee6dde35f3c80f27d892ab534ac0866e&to=zh", nil},
-		{"://test.com/test/path", "mockAppid", "mockSign", "name", "321", "", errors.New("parse ://test.com/test/path: missing protocol scheme")},
 	}
-	for _, table := range tables {
-		translator := newBaiduTranslator(client, table.baseurl, strings.Join([]string{table.appID, table.secret}, "-"))
-		returns, err := translator.genRequestURL(table.text, table.salt)
-		if err != nil {
-			if err.Error() != table.err.Error() {
-				t.Errorf(
-					"translator(client, %s, %s, %s).genRequestURL(%s, %s) result err was incorrect, got:%s, want:%s",
-					table.baseurl, table.appID, table.secret, table.text, table.salt, err.Error(), table.err.Error())
+	type args struct {
+		text string
+		salt string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
+	}{
+		{
+			name: "baidu",
+			fields: fields{
+				name:    "baidu",
+				baseurl: "ss",
+				appID:   "dsa",
+				secret:  "dasdasd",
+			},
+			args: args{
+				text: "adas",
+				salt: "asdasd",
+			},
+			want: "ss?appid=dsa&from=auto&q=adas&salt=asdasd&sign=e9c551473b204d235a7010c6e0566b8f&to=zh",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			translator := &baiduTranslator{
+				name:    tt.fields.name,
+				client:  tt.fields.client,
+				baseurl: tt.fields.baseurl,
+				appID:   tt.fields.appID,
+				secret:  tt.fields.secret,
 			}
-		}
-		if returns != table.returns {
-			t.Errorf(
-				"translator(client, %s, %s, %s).genRequestURL(%s, %s) result err was correct, got:%s, want:%s",
-				table.baseurl, table.appID, table.secret, table.text, table.salt, returns, table.returns)
-		}
+			if got := translator.genRequestURL(tt.args.text, tt.args.salt); got != tt.want {
+				t.Errorf("baiduTranslator.genRequestURL() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

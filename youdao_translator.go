@@ -23,6 +23,9 @@ type youdaoTranslator struct {
 
 func newYoudaoTranslator(client *http.Client, baseurl, str string) *youdaoTranslator {
 	arr := strings.Split(str, "-")
+	if len(arr) != 2 {
+		panic("config string error")
+	}
 	appKey := arr[0]
 	appSecret := arr[1]
 	return &youdaoTranslator{
@@ -40,10 +43,8 @@ func (translator *youdaoTranslator) GetName() string {
 
 func (translator *youdaoTranslator) Translate(text string) ([]Translation, error) {
 	timestamp := strconv.Itoa(int(time.Now().Unix()))
-	url, err := translator.genRequestURL(text, timestamp)
-	if err != nil {
-		return nil, err
-	}
+	url := translator.genRequestURL(text, timestamp, uuid.New().String())
+
 	ytr, err := translator.doRequest(url, text)
 	if err != nil {
 		return nil, err
@@ -53,8 +54,7 @@ func (translator *youdaoTranslator) Translate(text string) ([]Translation, error
 
 // genRequestURL generate url request by client
 // Passing the timestamp make function testable
-func (translator *youdaoTranslator) genRequestURL(text string, timestamp string) (string, error) {
-	salt := uuid.New().String()
+func (translator *youdaoTranslator) genRequestURL(text, timestamp, salt string) string {
 	query := map[string]string{
 		"q":        text,
 		"appKey":   translator.appKey,
@@ -74,16 +74,13 @@ func (translator *youdaoTranslator) genRequestURL(text string, timestamp string)
 	hash.Write([]byte(input))
 	query["sign"] = fmt.Sprintf("%x", hash.Sum(nil)) // 16 进制
 
-	u, err := url.Parse(youdaoURL)
-	if err != nil {
-		return "", err
-	}
+	u, _ := url.Parse(youdaoURL)
 	q := u.Query()
 	for k, v := range query {
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return u.String()
 }
 
 func (translator *youdaoTranslator) doRequest(url string, text string) (YoudaoTranslateResult, error) {

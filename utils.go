@@ -75,31 +75,3 @@ func getConfig(p string) ([]Config, error) {
 	}
 	return config, nil
 }
-
-func readConfigFromFile(p string) ([]Config, error) {
-	var config []Config
-	b, err := ioutil.ReadFile(p)
-	if err != nil {
-		return config, err
-	}
-	err = yaml.Unmarshal(b, &config)
-	if err != nil {
-		return config, err
-	}
-	return config, nil
-}
-
-func writeToFile(p string, b []byte) error {
-	f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	if _, err := f.Write(b); err != nil {
-		return err
-	}
-	if err := f.Sync(); err != nil {
-		return err
-	}
-	return nil
-}

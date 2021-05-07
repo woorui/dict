@@ -40,10 +40,7 @@ func (translator *baiduTranslator) GetName() string {
 // Translate implement Translator interface
 func (translator *baiduTranslator) Translate(text string) ([]Translation, error) {
 	salt := strconv.Itoa(rand.Int() * 1000)
-	url, err := translator.genRequestURL(text, salt)
-	if err != nil {
-		return nil, nil
-	}
+	url := translator.genRequestURL(text, salt)
 	btr, err := translator.doRequest(url, text)
 	if err != nil {
 		return nil, nil
@@ -51,7 +48,7 @@ func (translator *baiduTranslator) Translate(text string) ([]Translation, error)
 	return baiduTransformer(btr), nil
 }
 
-func (translator *baiduTranslator) genRequestURL(text string, salt string) (string, error) {
+func (translator *baiduTranslator) genRequestURL(text string, salt string) string {
 	sign := generateHashSign(translator.appID, text, salt, translator.secret)
 	query := map[string]string{
 		"q":     text,
@@ -65,16 +62,13 @@ func (translator *baiduTranslator) genRequestURL(text string, salt string) (stri
 	} else {
 		query["to"] = "zh"
 	}
-	u, err := url.Parse(translator.baseurl)
-	if err != nil {
-		return "", err
-	}
+	u, _ := url.Parse(translator.baseurl)
 	q := u.Query()
 	for k, v := range query {
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
-	return u.String(), nil
+	return u.String()
 }
 
 func (translator *baiduTranslator) doRequest(url string, text string) (BaiduTranslateResult, error) {
